@@ -8,3 +8,6 @@ http://mennovanslooten.github.io/connect4/
   
 ## Node modules
   https://github.com/sevak-crypto/nodeModulesforConnect4ongolem/upload/main
+
+## presentation
+  https://docs.google.com/presentation/d/1zKv8vZBJJ3WXRBN1tM_I1zx4eClSfcNfL6mZH5tJi1E/edit?usp=sharing
