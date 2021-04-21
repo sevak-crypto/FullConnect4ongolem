@@ -1,60 +1,355 @@
-<!doctype HTML>
+<!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="author" content="@sevak-crypto">
-		<script src="js/jquery-2.1.0.min.js"></script>
-		<link href="css/connect4.css" rel="stylesheet">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="author" content="@sevak-crypto" />
+    <script src="js/jquery-2.1.0.min.js"></script>
+    <link
+      href="C:\Users\slaks\FullConnect4ongolem\css\Connect4.css"
+      rel="stylesheet"
+    />
+    <link
+      href="C:\Users\slaks\FullConnect4ongolem\css\connect4.scss"
+      rel="stylesheet"
+    />
 
-		<style type="text/css">
-		body {
-			font-family: sans-serif;
-			background: white;
-			color: #333;
-		}
+    <style>
+      .rack {
+        display: inline-block;
+        border: 2px solid black;
+      }
+      .rack * {
+        box-sizing: border-box;
+        -ms-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+      }
 
-		#players {
-			padding: 10px;
+      .controls,
+      .message {
+        position: relative;
+        width: 350px;
+        height: 50px;
+        background: #eee;
+        visibility: hidden;
+      }
+      .controls.enabled,
+      .message.enabled {
+        visibility: visible;
+      }
 
-		}
-		</style>
+      .message {
+        visibility: visible;
+        line-height: 50px;
+        text-align: center;
+        text-transform: uppercase;
+        font-weight: bold;
+        font-size: 25px;
+      }
 
-		<title>Connect 4</title>
-	</head>
-	<body>
-	
-		<form id="players">
-			<label>
-				Yellow:
-				<select name="player_1">
-					<option value="0">Human</option>
-					<option value="1">Easy AI</option>
-					<option value="2">Tricky AI</option>
-					<option value="3">Tough AI</option>
-					<option value="4">Hard AI</option>
-					<option value="5">Impossible AI</option>
-				</select>
-			</label>
-			<label>
-				Red:
-				<select name="player_2">
-					<option value="0">Human</option>
-					<option value="1">Easy AI</option>
-					<option value="2">Tricky AI</option>
-					<option value="3">Tough AI</option>
-					<option value="4" selected>Hard AI</option>
-					<option value="5">Impossible AI</option>
-				</select>
-			</label>
-		</form>
+      .coins {
+        position: relative;
+        width: 350px;
+        height: 300px;
+        background: #bbb;
+        overflow: hidden;
+      }
 
-		<div id="board"></div>
+      .coin,
+      .control {
+        width: 50px;
+        height: 50px;
+        position: absolute;
+        left: 0;
+        top: -50px;
+        -moz-transition: top 0.2s ease-in;
+        -webkit-transition: top 0.2s ease-in;
+      }
+      .coin:before,
+      .control:before {
+        content: "";
+        position: absolute;
+        left: 5px;
+        top: 5px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        -moz-box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        -webkit-box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+      }
+      .coin:after,
+      .control:after {
+        content: "";
+        position: absolute;
+        left: 10px;
+        top: 10px;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.2);
+        -moz-box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.3);
+        -webkit-box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.3);
+      }
+      .coin.row-0,
+      .control.row-0 {
+        top: 0;
+      }
+      .coin.row-1,
+      .control.row-1 {
+        top: 50px;
+      }
+      .coin.row-2,
+      .control.row-2 {
+        top: 100px;
+      }
+      .coin.row-3,
+      .control.row-3 {
+        top: 150px;
+      }
+      .coin.row-4,
+      .control.row-4 {
+        top: 200px;
+      }
+      .coin.row-5,
+      .control.row-5 {
+        top: 250px;
+      }
+      .coin.col-1,
+      .control.col-1 {
+        left: 50px;
+      }
+      .coin.col-2,
+      .control.col-2 {
+        left: 100px;
+      }
+      .coin.col-3,
+      .control.col-3 {
+        left: 150px;
+      }
+      .coin.col-4,
+      .control.col-4 {
+        left: 200px;
+      }
+      .coin.col-5,
+      .control.col-5 {
+        left: 250px;
+      }
+      .coin.col-6,
+      .control.col-6 {
+        left: 300px;
+      }
+      .coin.red:before,
+      .control.red:before {
+        background: red;
+      }
+      .coin.yellow:before,
+      .control.yellow:before {
+        background: yellow;
+      }
+      .coin.connected:after,
+      .control.connected:after {
+        background: rgba(255, 255, 255, 0.6);
+      }
 
+      .control {
+        opacity: 0.5;
+        top: 0;
+        cursor: pointer;
+      }
+      .control:hover {
+        opacity: 1;
+      }
+    </style>
+    <style type="text/css">
+      body {
+        font-family: sans-serif;
+        background: white;
+        color: #333;
+      }
 
-		<script type="text/javascript" src="js/c4.js"></script>
-		<script type="text/javascript" src="js/c4.ai.js"></script>
-		<script type="text/javascript" src="js/c4.ui.js"></script>
-		<script type="text/javascript" src="js/c4.util.js"></script>
-		<script type="text/javascript" src="js/main.js"></script>
-	</body>
+      #players {
+        padding: 10px;
+      }
+    </style>
+    <style>
+      $coin_w: 50px;
+      $coin_h: 50px;
+      $rows: 6;
+      $cols: 7;
+
+      .rack {
+        display: inline-block;
+        border: 2px solid black;
+
+        * {
+          box-sizing: border-box;
+          -ms-box-sizing: border-box;
+          -moz-box-sizing: border-box;
+          -webkit-box-sizing: border-box;
+        }
+      }
+
+      .controls,
+      .message {
+        position: relative;
+        width: $cols * $coin_w;
+        height: $coin_h;
+        background: #eee;
+        visibility: hidden;
+
+        &.enabled {
+          visibility: visible;
+        }
+      }
+
+      .message {
+        visibility: visible;
+        line-height: $coin_h;
+        text-align: center;
+        text-transform: uppercase;
+        font-weight: bold;
+        font-size: $coin_h / 2;
+      }
+
+      .coins {
+        position: relative;
+        width: $cols * $coin_w;
+        height: $rows * $coin_h;
+        background: #bbb;
+        overflow: hidden;
+      }
+
+      .coin,
+      .control {
+        width: $coin_w;
+        height: $coin_h;
+        position: absolute;
+        left: 0;
+        top: -1 * $coin_h;
+        -moz-transition: top 0.2s ease-in;
+        -webkit-transition: top 0.2s ease-in;
+
+        &:before {
+          content: "";
+          position: absolute;
+          left: 5px;
+          top: 5px;
+          width: $coin_w - 10;
+          height: $coin_h - 10;
+          border-radius: 50%;
+          -moz-box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+          -webkit-box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+        }
+
+        &:after {
+          content: "";
+          position: absolute;
+          left: 10px;
+          top: 10px;
+          width: $coin_w - 20;
+          height: $coin_h - 20;
+          border-radius: 50%;
+          background: rgba(0, 0, 0, 0.2);
+          -moz-box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.3);
+          -webkit-box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        &.row-0 {
+          top: 0;
+        }
+        &.row-1 {
+          top: 1 * $coin_h;
+        }
+        &.row-2 {
+          top: 2 * $coin_h;
+        }
+        &.row-3 {
+          top: 3 * $coin_h;
+        }
+        &.row-4 {
+          top: 4 * $coin_h;
+        }
+        &.row-5 {
+          top: 5 * $coin_h;
+        }
+
+        &.col-1 {
+          left: 1 * $coin_w;
+        }
+        &.col-2 {
+          left: 2 * $coin_w;
+        }
+        &.col-3 {
+          left: 3 * $coin_w;
+        }
+        &.col-4 {
+          left: 4 * $coin_w;
+        }
+        &.col-5 {
+          left: 5 * $coin_w;
+        }
+        &.col-6 {
+          left: 6 * $coin_w;
+        }
+
+        &.red:before {
+          background: red;
+        }
+
+        &.yellow:before {
+          background: yellow;
+        }
+
+        &.connected:after {
+          background: rgba(255, 255, 255, 0.6);
+        }
+      }
+
+      .control {
+        opacity: 0.5;
+        top: 0;
+        cursor: pointer;
+
+        &:hover {
+          opacity: 1;
+        }
+      }
+    </style>
+
+    <title>Connect 4</title>
+  </head>
+  <body>
+    <form id="players">
+      <label>
+        Yellow:
+        <select name="player_1">
+          <option value="0">Human</option>
+          <option value="1">Easy AI</option>
+          <option value="2">Tricky AI</option>
+          <option value="3">Tough AI</option>
+          <option value="4">Hard AI</option>
+          <option value="5">Impossible AI</option>
+        </select>
+      </label>
+      <label>
+        Red:
+        <select name="player_2">
+          <option value="0">Human</option>
+          <option value="1">Easy AI</option>
+          <option value="2">Tricky AI</option>
+          <option value="3">Tough AI</option>
+          <option value="4" selected>Hard AI</option>
+          <option value="5">Impossible AI</option>
+        </select>
+      </label>
+    </form>
+
+    <div id="board"></div>
+
+    <script type="text/javascript" src="js/c4.js"></script>
+    <script type="text/javascript" src="js/c4.ai.js"></script>
+    <script type="text/javascript" src="js/c4.ui.js"></script>
+    <script type="text/javascript" src="js/c4.util.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+  </body>
 </html>
